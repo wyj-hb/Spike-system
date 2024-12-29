@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
 
+import static com.hmdp.utils.RedisConstants.CACHE_NULL_TTL;
 import static com.hmdp.utils.RedisConstants.CACHE_SHOP_KEY;
 
 @Service
@@ -32,11 +33,16 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
             Shop shop = JSONUtil.toBean(s, Shop.class);
             return Result.ok(shop);
         }
+        if(s != null)
+        {
+            return Result.fail("店铺不存在");
+        }
         //4.不存在则根据id查询数据库
         Shop byId = getById(id);
         //5.如果数据库中不存在则返回错误
         if(byId == null)
         {
+            stringRedisTemplate.opsForValue().set("cache:shop:" + id,"",CACHE_NULL_TTL, TimeUnit.MINUTES);
             return Result.fail("店铺不存在");
         }
         //6.存在则写入redis,并设置超时时间
