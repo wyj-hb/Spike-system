@@ -16,4 +16,6 @@ import com.hmdp.utils.LoginInterceptor;
 public interface IShopService extends IService<Shop> {
 
     Result queryByid(Long id);
+
+    Result update(Shop shop);
 }
