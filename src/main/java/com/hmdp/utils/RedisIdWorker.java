@@ -1,0 +1,36 @@
+package com.hmdp.utils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
+import javax.annotation.Resource;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+@Component
+public class RedisIdWorker {
+    //开始时间戳
+    private static final long BEGIN_TIMESTAMP = 1640995200L;
+    @Resource
+    private RedisTemplate redisTemplate;
+    //序列号的位数
+    private static final int COUNT_BITS = 32;
+    public long nextId(String keyPrefix)
+    {
+        //id生成
+        //1.生成时间戳
+        LocalDateTime now = LocalDateTime.now();
+        long epochSecond = now.toEpochSecond(ZoneOffset.UTC);
+        long timestamp = epochSecond - BEGIN_TIMESTAMP;
+        //2.生成序列号
+        //获取当前日期
+        String now_time = now.format(DateTimeFormatter.ofPattern("yyyy:MM:dd"));
+        long increment = redisTemplate.opsForValue().increment("icr:" + keyPrefix + ":" + now_time);
+        //3.拼接并返回
+        return timestamp << COUNT_BITS | increment;
+    }
+
+    public static void main(String[] args) {
+        LocalDateTime localDateTime = LocalDateTime.of(2022, 1, 1, 0, 0, 0);
+        long epochSecond = localDateTime.toEpochSecond(ZoneOffset.UTC);
+        System.out.println("second = "+ epochSecond);
+    }
+}
