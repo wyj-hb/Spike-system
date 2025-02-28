@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
-
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -18,7 +17,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import static com.hmdp.utils.RedisConstants.CACHE_SHOP_KEY;
 @SpringBootTest
 class HmDianPingApplicationTests {

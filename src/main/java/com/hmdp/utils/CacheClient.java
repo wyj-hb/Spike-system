@@ -76,7 +76,7 @@ public class CacheClient {
         //2.判断是否存在
         if(StrUtil.isBlank(s))
         {
-            //3.存在则直接返回
+            //3.缓存未命中返回null
             return null;
         }
         //命中需要判断过期时间
