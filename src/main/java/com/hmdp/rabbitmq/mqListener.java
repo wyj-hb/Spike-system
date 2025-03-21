@@ -10,6 +10,7 @@ import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -25,7 +26,8 @@ public class mqListener
             value = @Queue(name = "PlaceOrder"),
             exchange = @Exchange(name = "spike.first", type = ExchangeTypes.TOPIC),
             key = "place.order"))
-    private void order_consumer(VoucherOrder voucherOrder) {
+    @Transactional(rollbackFor = Exception.class)
+    public void order_consumer(VoucherOrder voucherOrder) {
         log.info("消费者线程" + Thread.currentThread() + "接收到了消息:"+ voucherOrder);
         boolean success = seckillVoucherService
                 .update()
@@ -39,5 +41,6 @@ public class mqListener
         }
         //直接保存订单
         voucherOrderService.save(voucherOrder);
+        throw new RuntimeException("故意的");
     }
 }

@@ -94,7 +94,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         BeanUtils.copyProperties(user, userDTO);
         Map<String, Object> map = BeanUtil.beanToMap(userDTO,new HashMap<>(), CopyOptions.create().setIgnoreNullValue(true)
                 .setFieldValueEditor((fileName,filedValue)->filedValue.toString()));
-        //存储
+        //存
         stringRedisTemplate.opsForHash().putAll( LOGIN_USER_KEY  + token,map);
         //设置有效期
         stringRedisTemplate.expire(LOGIN_USER_KEY + token,LOGIN_USER_TTL,TimeUnit.MINUTES);

@@ -5,7 +5,10 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.hmdp.entity.Shop;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.One;
 import org.apache.ibatis.annotations.Result;
+import org.redisson.api.RBloomFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
@@ -20,6 +23,8 @@ import static com.hmdp.utils.RedisConstants.LOCK_SHOP_KEY;
 @Slf4j
 @Component
 public class CacheClient {
+    @Autowired
+    private RBloomFilter<Object> BloomFilter;
     private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);
     private final StringRedisTemplate stringRedisTemplate;
     public CacheClient(StringRedisTemplate stringRedisTemplate)
@@ -67,18 +72,17 @@ public class CacheClient {
         this.set(key,r,time,unit);
         return r;
     }
-
     public <R,ID> R queryWithLogicalExpire(String keyPrefix,ID id,Class<R> type,Function<ID,R> dbFallback,Long time,TimeUnit unit)
     {
         String key = keyPrefix + id;
-        //1.从redis中查询店铺缓存
-        String s = stringRedisTemplate.opsForValue().get(key);
-        //2.判断是否存在
-        if(StrUtil.isBlank(s))
+        //0.先查询布隆过滤器:
+        if(!BloomFilter.contains(key))
         {
-            //3.缓存未命中返回null
+            log.info("布隆过滤器中不存在，key: " + key);
             return null;
         }
+        //1.从redis中查询店铺缓存
+        String s = stringRedisTemplate.opsForValue().get(key);
         //命中需要判断过期时间
         RedisData bean = JSONUtil.toBean(s, RedisData.class);
         JSONObject data =  (JSONObject)bean.getData();

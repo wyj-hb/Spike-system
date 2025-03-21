@@ -170,7 +170,6 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     public Result seckillVoucher(Long voucherId) {
         //获取用户
         Long userId = UserHolder.getUser().getId();
-
         //1. 执行lua脚本
         Long result = stringRedisTemplate.execute(
                 SECKILL_SCRIPT,
@@ -182,8 +181,18 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         if(r != 0)
         {
             log.error("错误");
-            // 2.1不为0代表没有购买资格
-            return  Result.fail(r == 1 ? "库存不足" : "不能重复下单");
+            switch (r) {
+                case 1:
+                    return Result.fail("库存不足");
+                case 2:
+                    return Result.fail("不能重复下单");
+                case 3:
+                    return Result.fail("秒杀尚未开始");
+                case 4:
+                    return Result.fail("秒杀已经结束");
+                default:
+                    return Result.fail("大爆炸我累格斗你出了个什么状态！！！");
+            }
         }
         //2.2为0有购买资格，加入到消息队列中
         long orderId = redisIdWorker.nextId("order");
@@ -290,7 +299,6 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
 //        Long userId = UserHolder.getUser().getId();
 //        //创建锁对象
 ////        SimpleRedisLock lock = new SimpleRedisLock("order:" + userId, stringRedisTemplate);
-//        RLock lock = redissonClient.getLock("lock:order:" + userId);
 //        boolean islock = lock.tryLock();
 //        //判断是否成功
 //        if(!islock)

@@ -26,6 +26,7 @@ if(redis.call('sismember',orderKey,userId) == 1) then
     --- 存在这说明是重复下单，返回2
     return 2
 end
+
 --- 扣库存
 redis.call("incrby",stockKey,-1)
 --- 下单

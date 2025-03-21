@@ -15,7 +15,7 @@ local stockKey = 'seckill:stock:' .. voucherId
 local orderKey = 'seckill:order:' .. voucherId
 --- 业务脚本
 --- 判断库存是否重复
-if(tonumber(redis.call('get',stockKey)) <= 0) then
+if(tonumber(redis.call('hget',stockKey,'stock')) <= 0) then
     --- 库存不足则返回1
     return 1
 end
@@ -24,8 +24,22 @@ if(redis.call('sismember',orderKey,userId) == 1) then
     --- 存在这说明是重复下单，返回2
     return 2
 end
+-- 获取时间戳
+local currentTime = tonumber(redis.call('TIME')[1])
+-- 判断秒杀是否开始
+if(tonumber(redis.call('hget',stockKey,'begin_time')) > currentTime) then
+    --- 秒杀尚未开始
+    return 3
+end
+
+-- 判断秒杀是否结束
+if(tonumber(redis.call('hget',stockKey,'end_time')) < currentTime) then
+    --- 秒杀已经结束
+    return 4
+end
+
 --- 扣库存
-redis.call("incrby",stockKey,-1)
+redis.call("hincrby",stockKey,'stock',-1)
 --- 下单
 redis.call('sadd',orderKey,userId)
 return 0
