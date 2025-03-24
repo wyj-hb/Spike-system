@@ -4,14 +4,11 @@ import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmdp.entity.SeckillVoucher;
 import com.hmdp.entity.Shop;
-import com.hmdp.entity.Voucher;
 import com.hmdp.service.ISeckillVoucherService;
 import com.hmdp.service.IShopService;
-import com.hmdp.service.IVoucherService;
 import com.hmdp.utils.RedisData;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -19,12 +16,9 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-
 import static com.hmdp.utils.RedisConstants.*;
 @Slf4j
 @Component

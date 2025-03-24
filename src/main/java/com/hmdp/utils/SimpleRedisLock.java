@@ -6,7 +6,6 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
 public class SimpleRedisLock implements Ilock
 {
     private String name;
@@ -17,12 +16,10 @@ public class SimpleRedisLock implements Ilock
         UNLOCK_SCRIPT.setLocation(new ClassPathResource("unlock.lua"));
         UNLOCK_SCRIPT.setResultType(Long.class);
     }
-
     public SimpleRedisLock(String name, StringRedisTemplate redisTemplate) {
         this.name = name;
         this.redisTemplate = redisTemplate;
     }
-
     private static final String KEY_PREFIX = "lock:";
     private static final String ID_PREFIX = UUID.randomUUID().toString() + "-";
     @Override

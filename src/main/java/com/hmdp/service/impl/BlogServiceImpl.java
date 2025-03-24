@@ -121,7 +121,10 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
             //4.1数据库点赞数-1
             boolean success = update().setSql("liked = liked - 1").eq("id", id).update();
             //4.2把用户从Redis的set集合中移除
-            stringRedisTemplate.opsForZSet().remove(key,UserId.toString());
+            if(success)
+            {
+                stringRedisTemplate.opsForZSet().remove(key,UserId.toString());
+            }
         }
         return Result.ok();
     }
