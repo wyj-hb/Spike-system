@@ -41,6 +41,5 @@ public class mqListener
         }
         //直接保存订单
         voucherOrderService.save(voucherOrder);
-        throw new RuntimeException("故意的");
     }
 }
